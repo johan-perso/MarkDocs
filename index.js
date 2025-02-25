@@ -267,7 +267,7 @@ async function createVercelProject(docsFolder){
 
 	var docsTempFolderPath = formulateDocsTempPath(docsFolder, docsConfig.name)
 	if(!fs.existsSync(docsTempFolderPath)){
-		log.error("Pour relier une documentation à Vercel, vous devez avoir construit le projet au moins une fois\nExécuter un nouveau build puis réessayer, il sera alors transféré automatiquement.")
+		log.error("Pour relier une documentation à Vercel, vous devez avoir construit le projet au moins une fois.\nExécuter un nouveau build puis réessayer, il sera alors transféré automatiquement.")
 		process.exit(1)
 	}
 
