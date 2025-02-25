@@ -1,0 +1,34 @@
+{
+	"name": "markdocs-cli",
+	"version": "1.0.0",
+	"description": "Construisez des documentations Markdown avec une simple configuration et un ensemble de documents Markdown",
+	"main": "index.js",
+	"bin": {
+		"markdocs": "index.js"
+	},
+	"keywords": [
+		"markdown",
+		"obsidian",
+		"docs",
+		"fumadocs",
+		"tui",
+		"cli"
+	],
+	"author": "JohanStickman",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/johan-perso/markdocs"
+	},
+	"homepage": "https://markdocs.johanstick.fr",
+	"dependencies": {
+		"@clack/prompts": "^0.9.1",
+		"command-exists": "^1.2.9",
+		"comment-json": "^4.2.5",
+		"ora": "5.4.1",
+		"picocolors": "^1.1.1"
+	},
+	"devDependencies": {
+		"eslint": "^9.20.1"
+	}
+}
