@@ -1,4 +1,4 @@
-var childProcess = require("child_process")
+const childProcess = require("child_process")
 
 module.exports.execCommand = async function (command, options = { cwd: process.cwd() }){
 	return new Promise((resolve, reject) => {
@@ -19,7 +19,7 @@ module.exports.spawnCommand = async function (command, args, options = { cwd: pr
 		process.on("error", (error) => { reject(error) })
 
 		process.on("close", (code) => {
-			if (code === 0) resolve()
+			if (code === 0) resolve(code)
 			else reject(new Error(`Process exited with code ${code}`))
 		})
 	})

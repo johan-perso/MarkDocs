@@ -65,7 +65,8 @@ async function copyFolder(src, dest){
 	for(var file of files){
 		var srcPath = path.join(src, file)
 		var destPath = path.join(dest, file)
-		if(fs.lstatSync(srcPath).isDirectory()) return copyFolder(srcPath, destPath)
+
+		if(fs.lstatSync(srcPath).isDirectory()) await copyFolder(srcPath, destPath)
 		else fs.copyFileSync(srcPath, destPath)
 	}
 
