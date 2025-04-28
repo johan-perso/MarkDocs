@@ -229,6 +229,7 @@ module.exports.convertMarkdown = async (
 			if(lines[i + 1] == "") i++ // on skip la ligne d'après si c'est un saut de ligne
 			continue
 		} else if(line.startsWith("%%") && line.endsWith("%%")){ // (commentaires Obsidian)
+			contentObject.warns.push(`Commentaire - ${line}`)
 			if(lines[i + 1] == "") i++
 			continue
 		}
