@@ -14,5 +14,5 @@ Pour plus d’informations sur le projet et son utilisation, consultez [sa propr
 
 ## Crédit et licence
 
-Ce projet utilise [Fumadocs](https://github.com/fuma-nama/fumadocs) pour l’entièreté du frontend.
-Licence MIT. Développé par [Johan](https://johanstick.fr). Soutenez moi via [Ko-Fi](https://ko-fi.com/johan_stickman) ou [PayPal](https://paypal.me/moipastoii) si vous souhaitez m'aider !
+Ce projet utilise [Fumadocs](https://github.com/fuma-nama/fumadocs) pour l’entièreté du frontend.  
+MIT © [Johan](https://johanstick.fr). Soutenez ce projet via [Ko-Fi](https://ko-fi.com/johan_stickman) ou [PayPal](https://paypal.me/moipastoii) si vous souhaitez m'aider 💙
