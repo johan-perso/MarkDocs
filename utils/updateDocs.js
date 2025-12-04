@@ -214,7 +214,7 @@ module.exports = async function main(options = { enableSpinner: false, beforeLog
 
 		fs.writeFileSync(path.join(folderDetails.path, "meta.json"), JSON.stringify({
 			title: folderDetails.title,
-			pages: folderMetaFromConfig?.pages || []
+			pages: folderMetaFromConfig?.pages?.length ? folderMetaFromConfig.pages : ["..."]
 		}, null, 2))
 	}))
 	spinner.succeed("Création des fichiers de méta-données de dossier.")
