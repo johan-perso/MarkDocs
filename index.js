@@ -200,7 +200,7 @@ async function initialSetup(){
 	"twitterLink": ${JSON.stringify(twitterLink)},
 	"contactLink": ${JSON.stringify(contactLink)},
 
-	"pages": [ // Sidebar principale, en savoir plus --> https://fumadocs.vercel.app/docs/ui/page-conventions#pages
+	"pages": [ // Sidebar principale, en savoir plus --> https://fumadocs.dev/docs/ui/page-conventions#pages
 		"Introduction.md",
 		"---Nom d'une catégorie---",
 		"Exemple/1.md",
@@ -415,15 +415,6 @@ async function buildProject(docsFolder){
 				try { fs.writeFileSync(path.join(docsTempFolder.path, ".creation_timestamp"), new Date().toISOString()) } catch (error) { } // indiquer la date de création du dossier temporaire
 			},
 		} : null,
-		!docsTempFolder.allFiles.includes("node_modules") ? {
-			title: `Téléchargement des dépendances (avec ${packageManager})`,
-			task: async (message) => {
-				try { await execCommand(`${packageManager} install`, { cwd: docsTempFolder.path }) } catch (error) {
-					log.error(`Impossible de télécharger les node_modules. ${error?.message || error}`)
-					throw new Error("Impossible de télécharger les node_modules.")
-				}
-			},
-		} : null,
 		{
 			title: "Conversion des documents Markdown en pages",
 			task: async (message) => {
@@ -445,6 +436,15 @@ async function buildProject(docsFolder){
 				else return `Conversion effectuée pour ${result.stats.files} document${result.stats.files > 1 ? "s" : ""} et ${result.stats.attachments} attachement${result.stats.attachments > 1 ? "s" : ""}${result.stats.warn > 1 ? picocolors.red(`, avec ${result.stats.warn} avertissement${result.stats.warn > 1 ? "s" : ""}`) : ""}.`
 			},
 		},
+		!docsTempFolder.allFiles.includes("node_modules") ? {
+			title: `Téléchargement des dépendances (avec ${packageManager})`,
+			task: async (message) => {
+				try { await execCommand(`${packageManager} install`, { cwd: docsTempFolder.path }) } catch (error) {
+					log.error(`Impossible de télécharger les node_modules. ${error?.message || error}`)
+					throw new Error("Impossible de télécharger les node_modules.")
+				}
+			},
+		} : null,
 		{
 			title: "Construction",
 			task: async (message) => {
