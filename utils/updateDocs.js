@@ -188,6 +188,8 @@ module.exports = async function main(options = { enableSpinner: false, beforeLog
 	fs.writeFileSync(path.join(outputDirDocs, "meta.json"), JSON.stringify({
 		pages: docsConfig?.pages.map(pageInConfig => {
 			if(!pageInConfig.startsWith("---")){
+				// Sauvegarder pageInConfig original avant transformation
+				var originalPageInConfig = pageInConfig.normalize("NFC")
 				var possibleFolders = getPossibleFolders(pageInConfig.normalize("NFC"))
 
 				// Vérifier dans la config si on doit remplacer le nom de certains (sous) dossiers
@@ -195,10 +197,12 @@ module.exports = async function main(options = { enableSpinner: false, beforeLog
 					var folderName = possibleFolders[i]
 					if(docsConfig?.folders?.[folderName]) pageInConfig = pageInConfig.replace(folderName, docsConfig.folders[folderName].slug)
 				}
+
+				var pageInAllFiles = allFiles.find(file => file._parts.join("/").normalize("NFC") == originalPageInConfig)
+				return removeMdExt(!pageInAllFiles ? pageInConfig : pageInAllFiles.parts.join("/"))
 			}
 
-			var pageInAllFiles = allFiles.find(file => file._parts.join("/").normalize("NFC") == pageInConfig.normalize("NFC"))
-			return removeMdExt(!pageInAllFiles ? pageInConfig : pageInAllFiles.parts.join("/"))
+			return pageInConfig
 		})
 	}, null, 2))
 	spinner.succeed("Création du fichier de méta-données principal.")
