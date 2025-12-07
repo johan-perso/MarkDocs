@@ -42,6 +42,15 @@ module.exports = async function main(options = { enableSpinner: false, beforeLog
 		if(!fs.existsSync(docsConfigPath)) throw new Error(`Le fichier de configuration n'existe pas, il doit être situé à ${docsConfigPath}`)
 		docsConfig = fs.readFileSync(docsConfigPath, "utf-8")
 		docsConfig = JSONC.parse(docsConfig)
+
+		// Normaliser les clés de folders une seule fois pour utilisations ultérieure
+		if(docsConfig?.folders) {
+			const normalizedFolders = {}
+			for(const [key, value] of Object.entries(docsConfig.folders)) {
+				normalizedFolders[key.normalize("NFC")] = value
+			}
+			docsConfig.folders = normalizedFolders
+		}
 	} catch(e){
 		spinner.fail(`Impossible de lire/décoder le fichier de configuration situé à ${docsConfigPath}`)
 		console.error(e)
@@ -74,7 +83,7 @@ module.exports = async function main(options = { enableSpinner: false, beforeLog
 			file.content,
 			{
 				origin: "obsidian",
-				assetsPath: inputAttachmentsDir, // dossier qui contient toutes les images attachés dans Obsidian
+				assetsPath: inputAttachmentsDir, // dossier qui contient toutes les images attachés
 				renameAssets: true, // donner un nom aléatoire aux images attachés, garde l'extension original
 				publicAssetsPath: `/${attachmentsSuffix}/` // chemin qui permet d'accéder aux images attachés depuis la docs
 			}
@@ -103,18 +112,19 @@ module.exports = async function main(options = { enableSpinner: false, beforeLog
 
 		// Vérifier dans la config si on doit remplacer le nom de certains (sous) dossiers
 		file.lastFolderOriginalName = file.parts[file.parts.length - 2]
-		var possibleFolders = getPossibleFolders(file.parts.join("/"))
+		file._parts = JSON.parse(JSON.stringify(file.parts))
+
+		var possibleFolders = getPossibleFolders(file.parts.join("/").normalize("NFC"))
 		for(var i = 0; i < possibleFolders.length; i++){
 			var folderName = possibleFolders[i]
 			if(docsConfig?.folders?.[folderName]){
-				var tempParts = file.parts.join("/")
+				var tempParts = file.parts.join("/").normalize("NFC")
 				tempParts = tempParts.replace(folderName, docsConfig.folders[folderName].slug)
 				file.parts = tempParts.split("/")
 			}
 		}
 
 		file.metadata = file.metadata || {}
-		file._parts = JSON.parse(JSON.stringify(file.parts))
 
 		if(file?.metadata?.name) file.parts[file.parts.length - 1] = `${file.metadata.name}.md`
 		else {
@@ -178,7 +188,7 @@ module.exports = async function main(options = { enableSpinner: false, beforeLog
 	fs.writeFileSync(path.join(outputDirDocs, "meta.json"), JSON.stringify({
 		pages: docsConfig?.pages.map(pageInConfig => {
 			if(!pageInConfig.startsWith("---")){
-				var possibleFolders = getPossibleFolders(pageInConfig)
+				var possibleFolders = getPossibleFolders(pageInConfig.normalize("NFC"))
 
 				// Vérifier dans la config si on doit remplacer le nom de certains (sous) dossiers
 				for(var i = 0; i < possibleFolders.length; i++){
@@ -187,8 +197,7 @@ module.exports = async function main(options = { enableSpinner: false, beforeLog
 				}
 			}
 
-			var normalizedPageInConfig = pageInConfig.normalize("NFC")
-			var pageInAllFiles = allFiles.find(file => file._parts.join("/").normalize("NFC") == normalizedPageInConfig)
+			var pageInAllFiles = allFiles.find(file => file._parts.join("/").normalize("NFC") == pageInConfig.normalize("NFC"))
 			return removeMdExt(!pageInAllFiles ? pageInConfig : pageInAllFiles.parts.join("/"))
 		})
 	}, null, 2))
@@ -199,17 +208,17 @@ module.exports = async function main(options = { enableSpinner: false, beforeLog
 	allFolders = allFolders.filter((folder, index, self) => index === self.findIndex(t => t.path === folder.path))
 	await Promise.all(allFolders.map(async folderDetails => {
 		folderDetails.relativeOriginalPath = path.join(path.relative(inputDir, folderDetails.originalPath))
-		folderDetails.relativeOriginalPath = folderDetails.relativeOriginalPath.split(path.sep).filter(part => part !== "..").join(path.sep)
+		folderDetails.relativeOriginalPath = folderDetails.relativeOriginalPath.split(path.sep).filter(part => part !== "..").join(path.sep).normalize("NFC")
 
 		var folderMetaFromConfig = docsConfig?.folders?.[folderDetails.relativeOriginalPath]
 		if(folderMetaFromConfig) folderMetaFromConfig.pages = (folderMetaFromConfig?.pages || []).map(pageInConfig => {
 			// Obtenir le slug du fichier
-			var pageInAllFiles = allFiles.find(file => file.path.endsWith(path.join(folderDetails.relativeOriginalPath, pageInConfig)))
+			var pageInAllFiles = allFiles.find(file => file.path.normalize("NFC").endsWith(path.join(folderDetails.relativeOriginalPath, pageInConfig.normalize("NFC"))))
 			var fileSlug = pageInAllFiles ? pageInAllFiles.parts.join("/") : null
 			if(fileSlug) return removeMdExt(path.basename(fileSlug))
 
 			// Si c'est un dossier, on obtient le sien
-			var folderSlug = allFolders.find(folder => folder.originalPath.endsWith(path.join(folderDetails.relativeOriginalPath, pageInConfig)))
+			var folderSlug = allFolders.find(folder => folder.originalPath.normalize("NFC").endsWith(path.join(folderDetails.relativeOriginalPath, pageInConfig.normalize("NFC"))))
 			if(folderSlug) return folderSlug.path.split(path.sep).pop()
 		})
 
