@@ -187,7 +187,8 @@ module.exports = async function main(options = { enableSpinner: false, beforeLog
 				}
 			}
 
-			var pageInAllFiles = allFiles.find(file => file._parts.join("/") == pageInConfig)
+			var normalizedPageInConfig = pageInConfig.normalize("NFC")
+			var pageInAllFiles = allFiles.find(file => file._parts.join("/").normalize("NFC") == normalizedPageInConfig)
 			return removeMdExt(!pageInAllFiles ? pageInConfig : pageInAllFiles.parts.join("/"))
 		})
 	}, null, 2))
