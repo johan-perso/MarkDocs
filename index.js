@@ -3,7 +3,7 @@
 const { intro, outro, text, isCancel, cancel, group, spinner, confirm, tasks, log } = require("@clack/prompts")
 const fs = require("fs")
 const path = require("path")
-const { tmpdir } = require("os")
+const { homedir, tmpdir } = require("os")
 const JSONC = { parse: require("comment-json").parse }
 const commandExistsSync = require("command-exists").sync
 const picocolors = require("picocolors")
@@ -25,6 +25,19 @@ _args.forEach(arg => {
 		args[argName] = argValue
 	}
 })
+
+function cleanReadablePath(value) {
+	var cleanValue = cleanPath(value)
+
+	const icloudPath = `${homedir()}/Library/Mobile Documents/iCloud~`
+	if(process.platform == "darwin" && cleanValue.startsWith(icloudPath)) {
+		cleanValue = cleanValue.replace(icloudPath, "☁️ iCloud ")
+		cleanValue = cleanValue.replaceAll("~", ".")
+		cleanValue = cleanValue.replace("/Documents/", "/")
+	}
+
+	return cleanValue
+}
 
 function firstLetterUpper(string){
 	return string.charAt(0).toUpperCase() + string.slice(1)
@@ -183,7 +196,7 @@ async function initialSetup(){
 	twitterLink = twitterLink === undefined || twitterLink == "https://x.com/" ? "" : twitterLink
 	contactLink = contactLink === undefined || contactLink == "" ? "" : contactLink
 
-	log.info(`MarkDocs va initialiser un projet dans le dossier suivant :\n${docsFolder}`)
+	log.info(`MarkDocs va initialiser un projet dans le dossier suivant :\n${cleanReadablePath(docsFolder)}`)
 	const s = spinner()
 	s.start("Un dossier \"_markdocs\" sera créé à cet emplacement.")
 	await new Promise(resolve => setTimeout(resolve, 3000))
@@ -384,7 +397,7 @@ async function buildProject(docsFolder){
 		}
 	}
 
-	log.info(`MarkDocs va construire le projet situé à :\n${docsFolder}\n\nUn dossier temporaire sera utilisé depuis l'emplacement :\n${docsTempFolder.path}`)
+	log.info(`MarkDocs va construire le projet situé à :\n${cleanReadablePath(docsFolder)}\n\nUn dossier temporaire sera utilisé depuis l'emplacement :\n${cleanReadablePath(docsTempFolder.path)}`)
 
 	var packageManager = "npm"
 	if(commandExistsSync("bun")) packageManager = "bun"
@@ -516,7 +529,7 @@ async function buildProject(docsFolder){
 				} else {
 					log.info("Pour un déploiement automatique, vous pouvez :\n• Configurer Vercel dans votre projet à l'aide de la sous-commande \"create-vercel\"\n• Exécuter cet utilitaire depuis une intégration continue relié à votre dépôt Git")
 					log.info("Pour déployer manuellement (serveur avec NodeJS + PM2), vous pouvez :\n• Copier l'ensemble des fichiers du dossier temporaire (hors node_modules) vers un serveur\n• Exécuter la commande \"npm install\" afin de télécharger les dépendances\n• Exécuter la commande \"npm run build\" afin de recompiler le projet\n• Exécuter la commande \"pm2 start npm --name 'markdocs-project' -- start\" afin de lancer le serveur")
-					log.info(`Le dossier temporaire est situé à :\n${docsTempFolder.path}`)
+					log.info(`Le dossier temporaire est situé à :\n${cleanReadablePath(docsTempFolder.path)}`)
 				}
 			},
 		},

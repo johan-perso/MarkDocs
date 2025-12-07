@@ -1,6 +1,6 @@
 {
 	"name": "markdocs-cli",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "Construisez des documentations Markdown avec une simple configuration et un ensemble de documents Markdown",
 	"main": "index.js",
 	"bin": {
